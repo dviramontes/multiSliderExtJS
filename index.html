@@ -53,9 +53,8 @@ Ext.define('fancySlider', {
             return;
         }
         
-        var active = me.active.id; // get active e.target;
-
-        console.log(active);
+        var active = me.active.id; // get active e.target . 
+        // declared below on onMouseDown function
 
         if (active === 'ext-comp-1010-thumb-1') {
             active = 1;
@@ -101,7 +100,7 @@ Ext.define('fancySlider', {
         if (me.disabled) {
             return;
         }
-        // console.log('# of thumbs ' + thumbs.length);
+
         me.active = e.target;
         
         //see if the click was on any of the thumbs
@@ -117,6 +116,7 @@ Ext.define('fancySlider', {
     },
 
 });
+
 </script>
 
 </html>
