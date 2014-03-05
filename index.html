@@ -13,6 +13,8 @@
     <div id="slider"></div>
 </body>
 <script>
+var test;
+
 Ext.onReady(function() {
     //Ext.get('slider').setStyle('padding', '10%');
     Ext.create('Ext.container.Viewport', {
@@ -27,13 +29,14 @@ Ext.onReady(function() {
         increment: 1,
         minValue: 1,
         maxValue: 100,
-        constrainThumbs: false,
+        constrainThumbs: true,
         renderTo: Ext.getBody()
     });
 });
 
 Ext.define('fancySlider', {
-    extend: 'Ext.slider.Multi',
+    extend: 'Ext.slider.Multi', // http://docs.sencha.com/extjs/4.0.7/source/Multi.html 
+
     onKeyDown: function(e) {
         /*
          * The behaviour for keyboard handling with multiple thumbs is currently undefined.
@@ -43,31 +46,76 @@ Ext.define('fancySlider', {
         var me = this,
             k,
             val;
-        console.dir(e);
-        if (me.disabled || me.thumbs.length !== 2) {
+
+        // if (me.disabled || me.thumbs.length !== 2) {
+        if (me.disabled) {
             e.preventDefault();
             return;
         }
-        console.log('yay');
+        
+        var active = me.active.id; // get active e.target;
+
+        console.log(active);
+
+        if (active === 'ext-comp-1010-thumb-1') {
+            active = 1;
+        }else{
+            active = 0;
+        }
+
         k = e.getKey();
 
         switch (k) {
-            case e.UP:
+            case e.UP: //or
             case e.RIGHT:
                 e.stopEvent();
-                val = e.ctrlKey ? me.maxValue : me.getValue(1) + me.keyIncrement;
-                me.setValue(1, val, undefined, true);
+                val = e.ctrlKey ? me.maxValue : me.getValue(active) + me.keyIncrement;
+                me.setValue(active, val, undefined, true);
                 break;
-            case e.DOWN:
+            case e.DOWN: // or
             case e.LEFT:
                 e.stopEvent();
-                val = e.ctrlKey ? me.minValue : me.getValue(1) - me.keyIncrement;
-                me.setValue(1, val, undefined, true);
+                val = e.ctrlKey ? me.minValue : me.getValue(active) - me.keyIncrement;
+                me.setValue(active, val, undefined, true);
                 break;
             default:
                 e.preventDefault();
         }
-    }
+
+    },
+
+    /**
+     * @private
+     * Mousedown handler for the slider. If the clickToChange is enabled and the click was not on the draggable 'thumb',
+     * this calculates the new value of the slider and tells the implementation (Horizontal or Vertical) to move the thumb
+     * @param {Ext.EventObject} e The click event
+     */
+    onMouseDown: function(e) {
+        var me = this,
+            thumbClicked = false,
+            i = 0,
+            thumbs = me.thumbs,
+            len = thumbs.length,
+            local;
+
+        if (me.disabled) {
+            return;
+        }
+        // console.log('# of thumbs ' + thumbs.length);
+        me.active = e.target;
+        
+        //see if the click was on any of the thumbs
+        for (; i < len; i++) {
+            thumbClicked = thumbClicked || e.target == thumbs[i].el.dom;
+        }
+        
+        if (me.clickToChange && !thumbClicked) {
+            local = me.innerEl.translatePoints(e.getXY());
+            me.onClickChange(local);
+        }
+        me.focus();
+    },
+
 });
 </script>
 
